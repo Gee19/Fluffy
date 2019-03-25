@@ -151,6 +151,35 @@ class TransferRates:
 TransferRateDict  = {0: TransferRates.Safe,
                      1: TransferRates.Normal}
 
+
+class DNDListWidget(QListWidget):
+
+    def __init__(self):
+        super(DNDListWidget, self).__init__()
+        self.setAcceptDrops(True)
+        # self.setDragDropMode(InternalMove)
+        self.setDefaultDropAction(Qt.MoveAction)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+        else:
+            super(DNDListWidget, self).dragEnterEvent(event)
+
+    def dragMoveEvent(self, event):
+        super(DNDListWidget, self).dragMoveEvent(event)
+
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.setDropAction(Qt.CopyAction)
+            event.accept()
+            for url in event.mimeData().urls():
+                list_nsp.addItem(str(url.toLocalFile()))
+            self.emit(QtCore.SIGNAL("dropped"), links)
+        else:
+            super(DNDListWidget, self).dropEvent(event)
+
+
 # "Language!" -Cap, May 1st 2015
 def set_language(v):
     global language
@@ -1399,7 +1428,8 @@ try:
     l_github = QtWidgets.QLabel("v" + VERSION)
     l_status = QtWidgets.QLabel(Language.CurrentDict[9]+".")
     l_switch = QtWidgets.QLabel(Language.CurrentDict[10]+"!")
-    list_nsp = QtWidgets.QListWidget()
+    # list_nsp = QtWidgets.QListWidget()
+    list_nsp = DNDListWidget()
     combo = QComboBox()
     
     #Set Widgets
